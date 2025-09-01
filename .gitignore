@@ -1,0 +1,6 @@
+# ignore all .env
+*.env
+
+
+# ignore compilation folder
+/bin

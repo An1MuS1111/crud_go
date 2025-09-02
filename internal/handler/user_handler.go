@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"crud/internal/middleware"
 	"crud/internal/service"
 	"encoding/json"
 	"fmt"
@@ -41,27 +42,26 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // add user with all the required fields
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	var createUser struct {
-		Name  string `json:"name"`
-		Email string `json:"email"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&createUser); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+func (h *UserHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request) {
+	// Retrieve validated user from context
+	user, ok := middleware.GetUserFromContext(r)
+	if !ok {
+		http.Error(w, "Error: user data not found in context", http.StatusInternalServerError)
 		return
 	}
 
-	if createUser.Name == "" || createUser.Email == "" {
-		http.Error(w, "name and email can't be empty", http.StatusBadRequest)
-		return
-	}
-
-	user, err := h.service.Register(r.Context(), createUser.Name, createUser.Email)
+	// Register the user using the service
+	registeredUser, err := h.service.Register(r.Context(), user.Name, user.Email)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to register user: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(user)
+	// Set response content type
+	w.Header().Set("Content-Type", "application/json")
+	// Encode the response
+	if err := json.NewEncoder(w).Encode(registeredUser); err != nil {
+		http.Error(w, "Failed to encode response: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

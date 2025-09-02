@@ -10,7 +10,7 @@ import (
 	"github.com/uptrace/bun/driver/pgdriver"
 )
 
-func Connect(cfg *config.Config) *bun.DB {
+func ConnnectPostgreSQL(cfg *config.Config) *bun.DB {
 	connector := pgdriver.NewConnector(pgdriver.WithDSN(cfg.PostgresDSN))
 	sqldb := sql.OpenDB(connector)
 

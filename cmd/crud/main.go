@@ -25,12 +25,22 @@ func main() {
 	ctx := context.Background()
 	cfg := config.Load()
 
-	// connect to DB
-	database := db.Connect(cfg)
+	// connect to postgreSQL
+	database := db.ConnnectPostgreSQL(cfg)
 	defer database.Close()
 
+	// connect to redis
+	rdb := db.ConnectRedis(cfg)
+
+	// test
+	pong, err := rdb.Ping(ctx).Result()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(pong)
+
 	// migrate
-	_, err := database.NewCreateTable().Model((*models.User)(nil)).IfNotExists().Exec(ctx)
+	_, err = database.NewCreateTable().Model((*models.User)(nil)).IfNotExists().Exec(ctx)
 	if err != nil {
 		panic(err)
 	}

@@ -4,11 +4,13 @@ import "os"
 
 type Config struct {
 	PostgresDSN string
+	RedisDSN    string
 }
 
 func Load() *Config {
 	return &Config{
-		PostgresDSN: getEnv("POSTGRES_DSN", "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"),
+		PostgresDSN: getEnv("POSTGRES_DSN", "postgres://postgres:postgres@db/postgres?sslmode=disable"),
+		RedisDSN:    getEnv("REDIS_DSN", "redis://:password@redis:6379/0"),
 	}
 }
 

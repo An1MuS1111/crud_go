@@ -49,9 +49,13 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&createUser); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	fmt.Println(createUser.Name)
+	if createUser.Name == "" || createUser.Email == "" {
+		http.Error(w, "name and email can't be empty", http.StatusBadRequest)
+		return
+	}
 
 	user, err := h.service.Register(r.Context(), createUser.Name, createUser.Email)
 	if err != nil {

@@ -34,6 +34,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	// Run migrations
+	// if err := migrations.InitMigrations(ctx, database); err != nil {
+	// 	log.Fatalf("Failed to run migrations: %v", err)
+	// }
 
 	userRepo := repository.NewUserRepository(database)
 	userService := service.NewUserService(userRepo)

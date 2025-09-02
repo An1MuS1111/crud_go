@@ -2,6 +2,7 @@ version: '3.8'
 
 volumes:
   postgres-data:
+  redis-data:
 
 services:
   app:
@@ -9,8 +10,8 @@ services:
       context: .
       dockerfile: Dockerfile
     env_file:
-        # Ensure that the variables in .env match the same variables in devcontainer.json
-        - .env
+      # Ensure that the variables in .env match the same variables in devcontainer.json
+      - .env
 
     volumes:
       - ../..:/workspaces:cached
@@ -18,10 +19,10 @@ services:
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
 
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
+    # Runs app on the same network as the database container
     network_mode: service:db
 
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
+    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
 
   db:
@@ -31,16 +32,12 @@ services:
       - postgres-data:/var/lib/postgresql/data
     env_file:
       # Ensure that the variables in .env match the same variables in devcontainer.json
-      # .env should satisfy the following fields inside .devcontainer/.env
       # POSTGRES_USER=
       # POSTGRES_PASSWORD=
       # POSTGRES_DB=
       # POSTGRES_HOSTNAME=
       - .env
-    
 
-    # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
   db_test:
     image: postgres:15
     container_name: postgres_test
@@ -50,3 +47,20 @@ services:
       POSTGRES_DB: crud_test
     ports:
       - "5433:5433"
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+
+  redis_test:
+    image: redis:7
+    container_name: redis_test
+    command: ["redis-server", "--appendonly", "no"]
+    ports:
+      - "6380:6380"

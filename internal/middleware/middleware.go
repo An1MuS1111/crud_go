@@ -11,7 +11,7 @@ import (
 type contextKeyType string
 
 const (
-	userContextKey contextKeyType = "userInput"
+	UserContextKey contextKeyType = "userInput"
 )
 
 // UserInput defines the structure for user input data
@@ -49,13 +49,13 @@ func RequireValidation(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		// Attach validated user to the request context
-		ctx := context.WithValue(r.Context(), userContextKey, user)
+		ctx := context.WithValue(r.Context(), UserContextKey, user)
 		next(w, r.WithContext(ctx))
 	}
 }
 
 // GetUserFromContext retrieves the validated UserInput from the request context
-func GetUserFromContext(r *http.Request) (UserInput, bool) {
-	user, ok := r.Context().Value(userContextKey).(UserInput)
-	return user, ok
-}
+// func GetUserFromContext(r *http.Request) (UserInput, bool) {
+// 	user, ok := r.Context().Value(userContextKey).(UserInput)
+// 	return user, ok
+// }

@@ -5,6 +5,7 @@ import (
 	"crud/internal/service"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -44,12 +45,13 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 // add user with all the required fields
 func (h *UserHandler) RegistrationHandler(w http.ResponseWriter, r *http.Request) {
 	// Retrieve validated user from context
-	user, ok := middleware.GetUserFromContext(r)
+
+	user, ok := r.Context().Value(middleware.UserContextKey).(middleware.UserInput)
 	if !ok {
-		http.Error(w, "Error: user data not found in context", http.StatusInternalServerError)
+		log.Fatalln("Error: user data not found in the context")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-
 	// Register the user using the service
 	registeredUser, err := h.service.Register(r.Context(), user.Name, user.Email)
 	if err != nil {
